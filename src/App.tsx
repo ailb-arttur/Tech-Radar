@@ -35,6 +35,7 @@ import {
 
 import { CATEGORIES, INITIAL_ATTACHED_TOOLS, CATALOG_PRESET_ITEMS, INITIAL_NEWS } from './data';
 import { ToolSignal, TechNews, CategoryKey, Category } from './types';
+import NewsFeed from './components/NewsFeed';
 
 // Map icons to Lucide components for seamless styling
 const IconComponents: { [key: string]: React.ComponentType<any> } = {
@@ -674,76 +675,16 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
             {/* --- LEFT HAND COLUMN (NEWS CARD + SUBHEADINGS + FILTER CATEGORIES DISPLAY) --- */}
-            <div className="lg:col-span-8 flex flex-col gap-6">
+              <div className="lg:col-span-8 flex flex-col gap-6">
               
-              {/* BRAND GREETING CARD */}
-              <div id="news-section" className="bg-white p-6 rounded border border-slate-200 shadow-sm relative overflow-hidden flex flex-col justify-between">
-                
-                {/* Visual grid watermark inside news section */}
-                <div className="absolute inset-0 bg-radial-gradient from-hud-green-glow/5 to-transparent pointer-events-none" />
-
-                <div className="relative z-10 flex flex-col h-full justify-between">
-                  
-                  {/* Category Header tag */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-3 mb-4">
-                    <div className="flex items-center gap-2">
-                       <span className="w-2 h-2 rounded bg-hud-green animate-pulse" />
-                       <span className="font-mono text-[11px] font-bold text-[#059669] uppercase tracking-wider">
-                         NOTÍCIA DE DESTAQUE
-                       </span>
-                    </div>
-                    <span className="font-mono text-[10px] text-text-hud-muted">
-                      Fonte: {activeNews.source} — {activeNews.date}
-                    </span>
-                  </div>
-
-                  {/* Body Title */}
-                  <h3 className="font-sans text-lg lg:text-xl font-bold text-slate-800 hover:text-[#059669] transition-colors leading-snug tracking-tight mb-2 uppercase">
-                    {activeNews.title}
-                  </h3>
-
-                  {/* Summary of Technology news */}
-                  <p className="text-[12.5px] text-text-hud-muted font-light leading-relaxed border-l-2 border-[#10b981] pl-4 py-1 mb-4">
-                    {activeNews.summary}
-                  </p>
-
-                  {/* Detailed Body description view - collapsible to prevent clutter */}
-                  <div className="bg-slate-50 p-4 border border-slate-200 rounded mb-4 text-[12px] leading-relaxed text-slate-700 font-sans whitespace-pre-line font-light">
-                    {activeNews.body}
-                  </div>
-
-                  {/* Alternative News Switch Board - allows users to switch headlines */}
-                  <div className="border-t border-slate-200 pt-4 flex flex-col gap-2">
-                    <span className="text-[10px] font-mono text-[#059669] uppercase font-semibold">
-                      Outras atualizações do dia (Selecione para ver):
-                    </span>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-1">
-                      {newsList.map((news, idx) => {
-                        if (idx === primaryNewsIdx) return null;
-                        return (
-                          <div
-                            key={news.id}
-                            onClick={() => {
-                              setPrimaryNewsIdx(idx);
-                              playSonarSound();
-                            }}
-                            className="bg-slate-50 hover:bg-slate-100 p-2.5 rounded border border-slate-203 hover:border-hud-green/50 cursor-pointer transition-all duration-200 group text-left"
-                          >
-                            <div className="flex items-center justify-between text-[9px] text-[#059669] font-mono mb-1">
-                              <span className="tracking-wide uppercase font-bold">{news.category}</span>
-                              <span>{news.date}</span>
-                            </div>
-                            <h4 className="text-[11px] text-slate-800 font-semibold group-hover:text-[#059669] font-sans truncate uppercase">
-                              {news.title}
-                            </h4>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
+                {/* News Feed Component (fetches /api/news) */}
+                <div id="news-section">
+                  {/* Lazy-loaded NewsFeed component */}
+                  <React.Suspense fallback={<div className="bg-white p-6 rounded border border-slate-200">Carregando feed...</div>}>
+                    {/* @ts-ignore - dynamic import to keep App build simple */}
+                    <NewsFeed />
+                  </React.Suspense>
                 </div>
-              </div>
 
               {/* DYNAMIC LIST HEADER AND MOBILE/TABLET CATEGORY SWITCHERS */}
               <div className="flex flex-col gap-4">

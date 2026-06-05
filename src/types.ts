@@ -33,6 +33,10 @@ export interface TechNews {
   title: string;
   summary: string;
   body: string;
+  // optional image URL (og:image or thumbnail)
+  image?: string;
+  // optional shorter excerpt used for previews
+  excerpt?: string;
   source: string;
   date: string;
   importance: 'HIGH' | 'MEDIUM' | 'LOW';

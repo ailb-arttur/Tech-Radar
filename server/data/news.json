@@ -1,0 +1,41 @@
+[
+  {
+    "id": "news-1",
+    "title": "OpenAI lança GPT-4.5 com raciocínio focado e mais velocidade",
+    "summary": "Disponível inicialmente para planos empresariais, modelo promete respostas 30% mais rápidas e custos reduzidos de tokens pela metade.",
+    "body": "A OpenAI divulgou o GPT-4.5. O modelo traz melhorias no tempo de reposta inicial (TTFT) e suporte aprimorado para áudio multilingue integrado. Para desenvolvedores, o benefício principal é a redução no preço por token gerado, facilitando a adoção em larga escala em APIs de produção de produtos compactos.",
+    "excerpt": "Disponível inicialmente para planos empresariais, modelo promete respostas 30% mais rápidas...",
+    "image": null,
+    "source": "Canal de Novidades da OpenAI",
+    "date": "Hoje, 09:30",
+    "importance": "HIGH",
+    "category": "IA",
+    "url": "https://openai.com/blog/gpt-4-5"
+  },
+  {
+    "id": "news-2",
+    "title": "React Compiler v19 traz otimização automática de build como padrão",
+    "summary": "Adeus ao useMemo e useCallback manuais. Novo compilador reorganiza dependências diretamente no build final para melhor performance.",
+    "body": "O React v19 foca na automatização do cache. Com o React Compiler ativo por padrão, o desenvolvedor não precisa mais gerenciar hooks de performance complexos. Testes em aparelhos mobile apontam melhorias de fluidez visual de até 40% em conexões moderadas.",
+    "excerpt": "Adeus ao useMemo e useCallback manuais...",
+    "image": null,
+    "source": "Blog Oficial do React Team",
+    "date": "Ontem, 12:15",
+    "importance": "MEDIUM",
+    "category": "Frameworks",
+    "url": "https://reactjs.org/blog/"
+  },
+  {
+    "id": "news-3",
+    "title": "Vazamento de credenciais no GitHub afeta milhares de repositórios",
+    "summary": "Detectores automatizados identificaram chaves de nuvem pública vazadas. Especialistas recomendam rotação imediata de chaves.",
+    "body": "Provedores de nuvem emitiram comunicados após registrarem acessos indevidos por chaves expostas em commits sem criptografia. Recomenda-se rodar auditores locais de segredo antes de realizar pushes, garantindo a integridade dos feeds operacionais de produção.",
+    "excerpt": "Detectores automatizados identificaram chaves de nuvem pública vazadas...",
+    "image": null,
+    "source": "Security Reports Internacional",
+    "date": "Há 2 dias",
+    "importance": "HIGH",
+    "category": "Segurança",
+    "url": "https://security.example.com/reports"
+  }
+]
