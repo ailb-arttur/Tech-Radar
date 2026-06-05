@@ -1,0 +1,6 @@
+{
+  "name": "Radar de Ferramentas",
+  "description": "Acompanhe e configure as atualizações, previsões, e alertas de segurança das ferramentas de tecnologia e IA do seu painel em tempo real.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
