@@ -41,8 +41,7 @@ export default function NewsFeed() {
   const primary = items[0];
 
   return (
-    <div id="news-feed-root" className="bg-emerald-700 text-white p-6 rounded border border-emerald-600 shadow-sm relative overflow-hidden flex flex-col justify-between">
-      <div className="absolute inset-0 bg-radial-gradient from-hud-green-glow/10 to-transparent pointer-events-none" />
+    <div id="news-feed-root" className="text-white p-6 rounded shadow-sm relative overflow-hidden flex flex-col justify-between" style={{backgroundColor: '#33F539', borderColor: '#4FC253', borderWidth: '1px'}}>
 
       {loading && <div className="p-6 text-center text-sm">Carregando notícias…</div>}
 
@@ -63,7 +62,7 @@ export default function NewsFeed() {
               <Truncated text={primary.excerpt || primary.summary || ''} lines={2} />
             </p>
 
-            <div className="bg-white/10 p-4 border border-white/15 rounded mb-4 text-[12px] leading-relaxed text-white/90 font-sans whitespace-pre-line font-light">
+            <div className="bg-white/10 p-4 border border-white/15 rounded mb-4 text-[12px] leading-relaxed text-white/90 font-sans whitespace-pre-line font-light" style={{backgroundColor: 'rgba(0, 0, 0, 0.15)'}}>
               {expandedId === primary.id ? primary.body : <Truncated text={primary.body} lines={3} />}
             </div>
 
@@ -79,16 +78,16 @@ export default function NewsFeed() {
           </div>
 
           {/* Render remaining items as small cards */}
-          <div className="border-t border-slate-200 pt-4 mt-4">
-            <span className="text-[10px] font-mono text-[#059669] uppercase font-semibold">Outras atualizações do dia</span>
+          <div className="border-t border-white/20 pt-4 mt-4">
+            <span className="text-[10px] font-mono text-white uppercase font-semibold">Outras atualizações do dia</span>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
               {items.slice(1).map(item => (
-                <article key={item.id} className="bg-slate-50 hover:bg-slate-100 p-2.5 rounded border border-slate-203 hover:border-hud-green/50 cursor-pointer transition-all duration-200 group" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                  <div className="flex items-center justify-between text-[9px] text-[#059669] font-mono mb-1">
+                <article key={item.id} className="p-2.5 rounded border cursor-pointer transition-all duration-200 group" style={{backgroundColor: 'rgba(255, 255, 255, 0.15)', borderColor: 'rgba(255, 255, 255, 0.2)'}} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                  <div className="flex items-center justify-between text-[9px] text-white font-mono mb-1">
                     <span className="tracking-wide uppercase font-bold">{item.category}</span>
                     <span>{item.date}</span>
                   </div>
-                  <h4 className="text-[11px] text-slate-800 font-semibold group-hover:text-[#059669] font-sans truncate uppercase">{item.title}</h4>
+                  <h4 className="text-[11px] text-white font-semibold group-hover:text-white/80 font-sans truncate uppercase">{item.title}</h4>
                 </article>
               ))}
             </div>

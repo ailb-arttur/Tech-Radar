@@ -38,11 +38,11 @@ const formatToolAvatar = (tool: ToolSignal) => {
 
 const LogoRadar = () => (
   <svg viewBox="0 0 72 72" className="logo-radar" aria-hidden="true">
-    <circle cx="36" cy="36" r="24" fill="rgba(91, 110, 245, 0.08)" />
+    <circle cx="36" cy="36" r="24" fill="rgba(51, 245, 57, 0.08)" />
     <circle className="pulse-ring" cx="36" cy="36" r="16" />
     <circle className="radar-core" cx="36" cy="36" r="7" />
     <circle cx="36" cy="36" r="3" fill="#ffffff" />
-    <path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#5B6EF5" strokeWidth="2" strokeLinecap="round" opacity="0.24" />
+    <path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#33F539" strokeWidth="2" strokeLinecap="round" opacity="0.24" />
   </svg>
 );
 

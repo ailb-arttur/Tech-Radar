@@ -3,20 +3,23 @@
 :root {
   color-scheme: light;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #111827;
+  color: #283329;
   background: #F7F8FA;
   --surface: #ffffff;
   --surface-secondary: #F7F8FA;
-  --accent: #5B6EF5;
-  --accent-soft: rgba(91, 110, 245, 0.12);
+  --accent: #33F539;
+  --accent-alt: #4FC253;
+  --accent-dark: #578F59;
+  --accent-muted: #4A5C4B;
+  --accent-soft: rgba(51, 245, 57, 0.12);
   --success-bg: #E8F5E9;
-  --success-fg: #22C55E;
+  --success-fg: #33F539;
   --alert-bg: #FFF3CD;
   --alert-fg: #F59E0B;
   --border: #E6E8F2;
   --muted: #6B7280;
-  --muted-strong: #374151;
-  --shadow: 0 24px 80px rgba(16, 24, 40, 0.06);
+  --muted-strong: #283329;
+  --shadow: 0 24px 80px rgba(40, 51, 41, 0.06);
 }
 
 * {
@@ -100,16 +103,16 @@ a {
 }
 
 .logo-radar .pulse-ring {
-  fill: rgba(91, 110, 245, 0.16);
+  fill: rgba(51, 245, 57, 0.16);
   animation: radar-pulse 2.8s ease-out infinite;
 }
 
 .logo-radar .radar-core {
-  fill: #5B6EF5;
+  fill: #33F539;
 }
 
 .logo-radar .radar-wave {
-  stroke: #5B6EF5;
+  stroke: #33F539;
   opacity: 0.18;
 }
 
@@ -196,7 +199,7 @@ a {
 }
 
 .cta-pill {
-  background: rgba(91, 110, 245, 0.12);
+  background: rgba(51, 245, 57, 0.12);
   color: var(--accent);
 }
 
@@ -210,7 +213,7 @@ a {
 }
 
 .badge--new {
-  background: rgba(91, 110, 245, 0.12);
+  background: rgba(51, 245, 57, 0.12);
   color: var(--accent);
 }
 
@@ -357,7 +360,7 @@ a {
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
-  background: rgba(91, 110, 245, 0.12);
+  background: rgba(51, 245, 57, 0.12);
   color: var(--accent);
 }
 
@@ -420,7 +423,7 @@ a {
 .sidebar-toggle:hover,
 .sidebar-toggle:focus-visible {
   color: var(--accent);
-  border-color: rgba(91, 110, 245, 0.28);
+  border-color: rgba(51, 245, 57, 0.28);
 }
 
 @media (max-width: 900px) {
