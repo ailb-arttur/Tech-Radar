@@ -3,262 +3,205 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Bot,
-  Cpu,
-  Terminal,
-  Shield,
-  Database,
-  Search,
-  Plus,
-  Trash2,
-  Bell,
-  Sliders,
-  X,
-  Radio,
-  Info,
-  TrendingUp,
-  Loader2,
-  Power,
-  Settings,
-  Code,
-  Globe,
-  AlertOctagon,
-  Eye,
-  RefreshCw,
-  SlidersHorizontal,
-  Check,
-  AlertTriangle
-} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Search, Users, Sparkles, ChevronDown, ArrowRight } from 'lucide-react';
+import { INITIAL_ATTACHED_TOOLS, INITIAL_NEWS } from './data';
+import { TechNews, ToolSignal } from './types';
 
-import { CATEGORIES, INITIAL_ATTACHED_TOOLS, CATALOG_PRESET_ITEMS, INITIAL_NEWS } from './data';
-import { ToolSignal, TechNews, CategoryKey, Category } from './types';
-import NewsFeed from './components/NewsFeed';
-
-// Map icons to Lucide components for seamless styling
-const IconComponents: { [key: string]: React.ComponentType<any> } = {
-  Bot,
-  Cpu,
-  Terminal,
-  Shield,
-  Database,
-  Code,
-  Globe
-};
-
-// Pure Web Audio API Synth to play a cool sonar ping directly from code
-// without calling external files (completely lightweight and 100% stable)
-const playSonarSound = () => {
-  try {
-    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContextClass) return;
-    const ctx = new AudioContextClass();
-    
-    // Resume context if suspended
-    if (ctx.state === 'suspended') {
-      ctx.resume();
-    }
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    // Cyber sonar frequency pattern: High chime fading to base frequency
-    osc.frequency.setValueAtTime(880, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.4);
-
-    gain.gain.setValueAtTime(0.08, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.5);
-  } catch (error) {
-    // Fail silently if browser blocks audio
-    console.debug('Radar Sound block/unsupported', error);
+const getBadge = (news: TechNews) => {
+  if (news.importance === 'HIGH') {
+    return { label: 'New', variant: 'new' };
   }
+
+  if (news.importance === 'MEDIUM') {
+    return { label: 'Atualizado', variant: 'updated' };
+  }
+
+  return { label: 'Trends', variant: 'muted' };
 };
+
+const getStatusDot = (status: ToolSignal['status']) => {
+  if (status === 'HIGH_IMPACT') return 'active';
+  if (status === 'BETA' || status === 'CRITICAL') return 'alert';
+  return 'stable';
+};
+
+const formatToolAvatar = (tool: ToolSignal) => {
+  if (tool.iconType === 'emoji') return tool.iconName;
+  return tool.name
+    .split(' ')
+    .map(word => word[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+};
+
+const LogoRadar = () => (
+  <svg viewBox="0 0 72 72" className="logo-radar" aria-hidden="true">
+    <circle cx="36" cy="36" r="24" fill="rgba(91, 110, 245, 0.08)" />
+    <circle className="pulse-ring" cx="36" cy="36" r="16" />
+    <circle className="radar-core" cx="36" cy="36" r="7" />
+    <circle cx="36" cy="36" r="3" fill="#ffffff" />
+    <path d="M36 12v8M36 52v8M12 36h8M52 36h8" stroke="#5B6EF5" strokeWidth="2" strokeLinecap="round" opacity="0.24" />
+  </svg>
+);
 
 export default function App() {
-  // --- Persistent Local States ---
-  const [attachedTools, setAttachedTools] = useState<ToolSignal[]>(() => {
-    const saved = localStorage.getItem('techradar_attached_tools');
-    return saved ? JSON.parse(saved) : INITIAL_ATTACHED_TOOLS;
-  });
-
-  const [catalogItems, setCatalogItems] = useState<ToolSignal[]>(() => {
-    const saved = localStorage.getItem('techradar_catalog_items');
-    return saved ? JSON.parse(saved) : CATALOG_PRESET_ITEMS;
-  });
-
   const [newsList, setNewsList] = useState<TechNews[]>(() => {
-    const saved = localStorage.getItem('techradar_news_list');
+    const saved = localStorage.getItem('techradar_news');
     return saved ? JSON.parse(saved) : INITIAL_NEWS;
   });
 
-  const [primaryNewsIdx, setPrimaryNewsIdx] = useState<number>(0);
+  const [followList, setFollowList] = useState<ToolSignal[]>(() => {
+    const saved = localStorage.getItem('techradar_following');
+    return saved ? JSON.parse(saved) : INITIAL_ATTACHED_TOOLS;
+  });
 
-  // --- UI Interactivity States ---
-  const [selectedToolsFilter, setSelectedToolsFilter] = useState<CategoryKey | 'ALL'>('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTabCatalog, setActiveTabCatalog] = useState<'catalog' | 'manual'>('catalog');
-  
-  // Modals & Panels Visibility
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedToolDetail, setSelectedToolDetail] = useState<ToolSignal | null>(null);
-  const [toolToDelete, setToolToDelete] = useState<ToolSignal | null>(null);
-  const [showOperatorConfig, setShowOperatorConfig] = useState(false);
-  
-  // Tactical simulation states
-  const [isRadarScanning, setIsRadarScanning] = useState(true);
-  const [lastScanCount, setLastScanCount] = useState(122);
-  const [simulationLogMessage, setSimulationLogMessage] = useState<string>('Painel operacional: Radar ativo.');
-  const [showSimulationToast, setShowSimulationToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [terminalSearchOpen, setTerminalSearchOpen] = useState(false);
-  const [searchTerminalInput, setSearchTerminalInput] = useState('');
-
-  // Operator parameters
-  const [operatorName, setOperatorName] = useState(() => localStorage.getItem('techradar_operator_name') || 'ADMIN_USER');
-  const [operatorLevel, setOperatorLevel] = useState(() => localStorage.getItem('techradar_operator_level') || 'ADMINISTRADOR');
-
-  // Dynamic system localized time
-  const [systemTime, setSystemTime] = useState('');
-
-  // --- Sync storage ---
-  useEffect(() => {
-    localStorage.setItem('techradar_attached_tools', JSON.stringify(attachedTools));
-  }, [attachedTools]);
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('techradar_catalog_items', JSON.stringify(catalogItems));
-  }, [catalogItems]);
-
-  useEffect(() => {
-    localStorage.setItem('techradar_news_list', JSON.stringify(newsList));
+    localStorage.setItem('techradar_news', JSON.stringify(newsList));
   }, [newsList]);
 
   useEffect(() => {
-    localStorage.setItem('techradar_operator_name', operatorName);
-    localStorage.setItem('techradar_operator_level', operatorLevel);
-  }, [operatorName, operatorLevel]);
+    localStorage.setItem('techradar_following', JSON.stringify(followList));
+  }, [followList]);
 
-  // System localized clock ticking
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('pt-BR', { hour12: false });
-      setSystemTime(timeStr);
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Simulates a radar ping frequency calculation periodically
-  useEffect(() => {
-    if (!isRadarScanning) return;
-    const interval = setInterval(() => {
-      // Simulate slight micro oscillations of radar hits
-      setLastScanCount(prev => {
-        const delta = Math.floor(Math.random() * 9) - 4;
-        const nextVal = prev + delta;
-        return nextVal > 80 && nextVal < 180 ? nextVal : 118;
-      });
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [isRadarScanning]);
-
-  // --- Manual Tool Registration States ---
-  const [manualName, setManualName] = useState('');
-  const [manualCategory, setManualCategory] = useState<CategoryKey>('AI_ASSISTANTS');
-  const [manualVersion, setManualVersion] = useState('v1.0.0');
-  const [manualSummary, setManualSummary] = useState('');
-  const [manualChangeLog, setManualChangeLog] = useState('');
-  const [manualPrediction, setManualPrediction] = useState('');
-  const [manualSignalsMsg, setManualSignalsMsg] = useState('');
-
-  // Handle manual additions
-  const handleAddManualTool = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!manualName.trim()) {
-      alert('Por favor, informe o nome da ferramenta.');
-      return;
-    }
-
-    const newId = 'custom-' + Date.now();
-    const newTool: ToolSignal = {
-      id: newId,
-      name: manualName.trim(),
-      iconType: 'emoji',
-      iconName: '🛠️',
-      category: manualCategory,
-      version: manualVersion || 'v1.0.0',
-      status: 'STABLE',
-      lastUpdated: 'Agora mesmo',
-      summary: manualSummary.trim() || 'Nova ferramenta adicionada manualmente pelo painel do operador.',
-      changes: manualChangeLog.trim() ? manualChangeLog.split('\n').filter(Boolean) : ['Inicialização de rastreamento no painel táctico.'],
-      predictions: manualPrediction.trim() ? manualPrediction.split('\n').filter(Boolean) : ['Sem previsões de novos releases nas próximas 2 semanas.'],
-      weakSignals: manualSignalsMsg.trim() ? manualSignalsMsg.split('\n').filter(Boolean) : ['Comunidade local começando a monitorar em fóruns de desenvolvimento.'],
-      securityAlerts: [],
-      unread: true
-    };
-
-    setAttachedTools(prev => [newTool, ...prev]);
-    triggerToast(`Sinal ${newTool.name} detectado e anexado ao console.`);
-    
-    // clear fields
-    setManualName('');
-    setManualVersion('v1.0.0');
-    setManualSummary('');
-    setManualChangeLog('');
-    setManualPrediction('');
-    setManualSignalsMsg('');
-    setShowAddModal(false);
-
-    playSonarSound();
+  const handleToggleExpand = (id: string) => {
+    setExpandedIds(current =>
+      current.includes(id) ? current.filter(item => item !== id) : [...current, id],
+    );
   };
 
-  // Preset Addition Handler
-  const handleAddPresetTool = (preset: ToolSignal) => {
-    // Check if already exists in attached list
-    if (attachedTools.some(t => t.id === preset.id)) {
-      triggerToast(`${preset.name} já está ativa no seu painel.`);
-      return;
-    }
+  const activeFollowers = followList.filter(tool => tool.unread).length;
 
-    setAttachedTools(prev => [preset, ...prev]);
-    triggerToast(`${preset.name} instalada e anexada com sucesso!`);
-    playSonarSound();
-  };
+  return (
+    <div className="page-frame">
+      <div className="page-shell">
+        <header className="topbar">
+          <div className="brand">
+            <LogoRadar />
+            <div className="brand-title">
+              <strong>Tech Radar</strong>
+              <span>Feed inteligente para ferramentas, alertas e insights.</span>
+            </div>
+          </div>
 
-  // Removal Handler
-  const handleConfirmDelete = () => {
-    if (!toolToDelete) return;
-    setAttachedTools(prev => prev.filter(t => t.id !== toolToDelete.id));
-    triggerToast(`Rastreamento de ${toolToDelete.name} desativado com sucesso.`);
-    setToolToDelete(null);
-  };
+          <button
+            type="button"
+            className="sidebar-toggle"
+            aria-expanded={sidebarOpen}
+            onClick={() => setSidebarOpen(prev => !prev)}
+          >
+            <Users size={18} />
+            Quem você segue
+          </button>
+        </header>
 
-  // Toast dispatch helper
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setShowSimulationToast(true);
-    setTimeout(() => {
-      setShowSimulationToast(false);
-    }, 4500);
-  };
+        <div className="page-grid">
+          <main className="feed-column">
+            <section className="page-header">
+              <div>
+                <h1>Últimas descobertas no radar</h1>
+                <p>
+                  Uma experiência de feed inspirada em redes sociais para navegar por novidades, atualizações e alertas de tecnologia com clareza e foco.
+                </p>
+              </div>
+              <div className="cta-row">
+                <span className="cta-pill">
+                  <Sparkles size={16} /> Destaques do dia
+                </span>
+                <span className="status-pill">{activeFollowers} seguindo</span>
+              </div>
+            </section>
 
-  // Simulated live event updater - Generates and injects random feedback warning logs or predictions of random tool
-  const triggerLiveSignalSimulator = () => {
-    if (attachedTools.length === 0) {
-      triggerToast('Nenhuma ferramenta ativa para receber simulação de sinal.');
-      return;
-    }
+            {newsList.map(item => {
+              const badge = getBadge(item);
+              const isExpanded = expandedIds.includes(item.id);
+              return (
+                <article key={item.id} className="feed-item">
+                  <div className="feed-item__meta">
+                    <span className={`badge badge--${badge.variant}`}>{badge.label}</span>
+                    <span className="feed-item__source">{item.source}</span>
+                    <span className="feed-item__source">• {item.date}</span>
+                  </div>
+
+                  <h2 className="feed-item__title">{item.title}</h2>
+                  <p className={`feed-item__summary ${isExpanded ? 'expanded' : ''}`}>{item.summary}</p>
+
+                  <div className={`feed-item__details ${isExpanded ? 'expanded' : ''}`}>
+                    <p>{item.body}</p>
+                  </div>
+
+                  <div className="feed-item__actions">
+                    <button
+                      type="button"
+                      className="feed-item__button"
+                      aria-expanded={isExpanded}
+                      onClick={() => handleToggleExpand(item.id)}
+                    >
+                      {isExpanded ? 'Ver menos' : 'Ver mais'}
+                      <ChevronDown size={16} style={{ transform: isExpanded ? 'rotate(180deg)' : 'none' }} />
+                    </button>
+                    <span className="feed-item__source">{item.category}</span>
+                  </div>
+                </article>
+              );
+            })}
+          </main>
+
+          <aside className="sidebar" aria-hidden={!sidebarOpen && window.innerWidth < 900}>
+            <section className="sidebar-card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <div>
+                  <h2>Quem você segue</h2>
+                  <p>Ferramentas & funcionalidades destacadas no seu radar.</p>
+                </div>
+                <span className="badge badge--new">{activeFollowers} novas</span>
+              </div>
+
+              <ul className="follow-list">
+                {followList.map(tool => (
+                  <li key={tool.id} className="follow-item">
+                    <div className="follow-avatar">{formatToolAvatar(tool)}</div>
+                    <div className="follow-details">
+                      <p className="follow-name">{tool.name}</p>
+                      <p className="follow-subtitle">{tool.summary}</p>
+                      <div className="follow-status">
+                        <span className={`status-dot ${getStatusDot(tool.status)}`} />
+                        {tool.status.replace('_', ' ').toLowerCase()}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="sidebar-card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+                <div>
+                  <h2>Atalhos rápidos</h2>
+                  <p>Principais áreas de ação no radar.</p>
+                </div>
+                <span className="status-pill">Tempo real</span>
+              </div>
+
+              <div style={{ display: 'grid', gap: '0.9rem', marginTop: '1rem' }}>
+                <button className="feed-item__button" type="button">
+                  <Search size={16} /> Buscar insights
+                </button>
+                <button className="feed-item__button" type="button">
+                  <ArrowRight size={16} /> Ver painel de sinais
+                </button>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </div>
+  );
+}
 
     const randomIndex = Math.floor(Math.random() * attachedTools.length);
     const targetTool = attachedTools[randomIndex];
